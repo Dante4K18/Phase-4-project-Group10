@@ -1,0 +1,5 @@
+could somebody please setting up the database migrations:
+- flask db init
+- flask db migrate
+flask db upgrade
+-

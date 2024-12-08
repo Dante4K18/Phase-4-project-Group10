@@ -127,6 +127,7 @@ While existing social media platforms are saturated, **BuzzNexus** prioritizes:
     flask db migrate
     flask db upgrade
     python seed.py
+    pip install flask-socketio
 
 3. Set up the frontend:
     ```bash
@@ -170,3 +171,8 @@ Have questions or feedback?Reach out at:
 - marilyn.oyoo@student.moringaschool.com
 - rabiya.abubakar1@student.moringaschool.com
 - daniel.ombui@student.moringaschool.com
+
+
+pip install flask-socketio
+
+npm install socket.io-client

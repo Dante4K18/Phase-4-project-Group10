@@ -1,11 +1,12 @@
-from flask import Flask,jsonify,request,session
+from flask import Flask,jsonify,request,session, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from models import User,Post,Follow,Like
 from werkzeug.security import check_password_hash
+from flask_socketio import SocketIO, emit   
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='../frontend/build')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/connectsphere'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'your_secret_key'
@@ -13,6 +14,30 @@ app.secret_key = 'your_secret_key'
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 CORS(app)
+# Initialize SocketIO
+socketio = SocketIO(app, cors_allowed_origins="*")
+
+def serve():
+    return send_from_directory(app.static_folder, 'index.html')
+
+@app.route('/')
+def home():
+    return jsonify({"message": "Welcome to the Real-Time Social Media App!"})
+
+# SocketIO events
+@socketio.on('connect')
+def handle_connect():
+    print("Client connected")
+    emit('message', {'message': 'Welcome to the real-time server!'})
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    print("Client disconnected")
+
+@socketio.on('chat_message')
+def handle_chat_message(data):
+    print(f"Received message: {data}")
+    emit('chat_message', data, broadcast=True)  # Broadcast to all connected clients
 
 ## Signup
 @app.route('/signup', methods=['POST'])
@@ -123,3 +148,6 @@ def unfollow_user(user_id):
     user.following.remove(user_to_unfollow)
     db.session.commit()
     return jsonify({"message": f"You have unfollowed {user_to_unfollow.username}"}), 200
+
+if __name__ == '__main__':
+    app.run(port=5000)
